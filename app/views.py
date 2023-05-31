@@ -22,12 +22,8 @@ from sklearn.linear_model import LinearRegression
 from sklearn import preprocessing, model_selection, svm
 
 
-
-
-# The Home page when Server loads up
 def index(request):
-    # ================================================= Left Card Plot =========================================================
-    # Here we use yf.download function
+  
     data = yf.download(
         
         # passes the ticker
@@ -37,7 +33,7 @@ def index(request):
         
         threads=True, # Set thread value to true
         
-        # used for access data[ticker]
+
         period='1mo', 
         interval='1d'
     
@@ -71,7 +67,7 @@ def index(request):
     plot_div_left = plot(fig_left, auto_open=False, output_type='div')
 
 
-    # ================================================ To show recent stocks ==============================================
+    
     
     df1 = yf.download(tickers = 'AAPL', period='1d', interval='1d')
     df2 = yf.download(tickers = 'AMZN', period='1d', interval='1d')
@@ -98,7 +94,7 @@ def index(request):
     recent_stocks = []
     recent_stocks = json.loads(json_records)
 
-    # ========================================== Page Render section =====================================================
+ 
 
     return render(request, 'index.html', {
         'plot_div_left': plot_div_left,
@@ -109,7 +105,7 @@ def search(request):
     return render(request, 'search.html', {})
 
 def ticker(request):
-    # ================================================= Load Ticker Table ================================================
+    
     ticker_df = pd.read_csv('app/Data/new_tickers.csv') 
     json_ticker = ticker_df.reset_index().to_json(orient ='records')
     ticker_list = []
@@ -121,10 +117,10 @@ def ticker(request):
     })
 
 
-# The Predict Function to implement Machine Learning as well as Plotting
+
 def predict(request, ticker_value, number_of_days):
     try:
-        # ticker_value = request.POST.get('ticker')
+        
         ticker_value = ticker_value.upper()
         df = yf.download(tickers = ticker_value, period='1d', interval='1m')
         print("Downloaded ticker = {} successfully".format(ticker_value))
@@ -132,7 +128,7 @@ def predict(request, ticker_value, number_of_days):
         return render(request, 'API_Down.html', {})
 
     try:
-        # number_of_days = request.POST.get('days')
+    
         number_of_days = int(number_of_days)
     except:
         return render(request, 'Invalid_Days_Format.html', {})
@@ -176,10 +172,6 @@ def predict(request, ticker_value, number_of_days):
     plot_div = plot(fig, auto_open=False, output_type='div')
 
 
-
-    # ========================================== Machine Learning ==========================================
-
-
     try:
         df_ml = yf.download(tickers = ticker_value, period='3mo', interval='1h')
     except:
@@ -208,9 +200,6 @@ def predict(request, ticker_value, number_of_days):
     forecast = forecast_prediction.tolist()
 
 
-    # ========================================== Plotting predicted data ======================================
-
-
     pred_dict = {"Date": [], "Prediction": []}
     for i in range(0, len(forecast)):
         pred_dict["Date"].append(dt.datetime.today() + dt.timedelta(days=i))
@@ -221,8 +210,6 @@ def predict(request, ticker_value, number_of_days):
     pred_fig.update_xaxes(rangeslider_visible=True)
     pred_fig.update_layout(paper_bgcolor="#14151b", plot_bgcolor="#14151b", font_color="white")
     plot_div_pred = plot(pred_fig, auto_open=False, output_type='div')
-
-    # ========================================== Display Ticker Info ==========================================
 
     ticker = pd.read_csv('app/Data/Tickers.csv')
     to_search = ticker_value
@@ -242,8 +229,6 @@ def predict(request, ticker_value, number_of_days):
             Sector = ticker.Sector[i]
             Industry = ticker.Industry[i]
             break
-
-    # ========================================== Page Render section ==========================================
     
 
     return render(request, "result.html", context={ 'plot_div': plot_div, 
